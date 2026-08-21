@@ -12,5 +12,5 @@ beautifulsoup4==4.12.3
 httpx
 playwright
 camoufox
-seleniumbase
+seleniumbase==4.52.1
 colorama
