@@ -36,6 +36,11 @@ _HEADERS = {
 }
 
 def clean_url(url: str) -> str:
+    # Don't strip query params for hosts where the ID lives in the query
+    # string (e.g. youtube.com/watch?v=...). Stripping there breaks the URL.
+    query_dependent_hosts = ("youtube.com", "youtu.be", "music.youtube.com")
+    if any(h in url for h in query_dependent_hosts):
+        return url
     if "?" in url:
         url = url.split("?")[0]
     if not url.endswith("/"):
@@ -61,7 +66,10 @@ def fetch(url: str):
         try:
             data = r.json()
         except Exception:
+            print(f"[aio.fetch] non-JSON response, status={r.status_code}, body={r.text[:500]!r}")
             return None, "invalid_json"
+
+        print(f"[aio.fetch] status={r.status_code}, response={data!r}")
 
         if data.get("error") == "user_retry_required":
             return None, "retry_required"
